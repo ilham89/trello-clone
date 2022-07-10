@@ -5,6 +5,9 @@
         class="column"
         v-for="(column, $columnIndex) of board.columns"
         :key="$columnIndex"
+        @drop="moveTask($event, column.tasks)"
+        @dragover.prevent
+        @dragenter.prevent
       >
         <div class="flex items-center mb-2 font-bold">
           {{ column.name }}
@@ -15,6 +18,8 @@
             v-for="(task, $taskIndex) of column.tasks"
             :key="$taskIndex"
             @click="goToTask(task)"
+            draggable
+            @dragstart="pickupTask($event, $taskIndex, $columnIndex)"
           >
             <span class="w-full flex-no-shrink font-bold">
               {{ task.name }}
@@ -61,6 +66,22 @@ export default {
     createTask(e, tasks) {
       this.$store.commit("CREATE_TASK", { tasks, name: e.target.value });
       e.target.value = "";
+    },
+    pickupTask(e, taskIndex, fromColumnIndex) {
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.dropEffect = "move";
+      e.dataTransfer.setData("task-index", taskIndex);
+      e.dataTransfer.setData("from-column-index", fromColumnIndex);
+    },
+    moveTask(e, toTasks) {
+      const fromColumnIndex = e.dataTransfer.getData("from-column-index");
+      const fromTasks = this.board.columns[fromColumnIndex].tasks;
+      const taskIndex = e.dataTransfer.getData("task-index");
+      this.$store.commit("MOVE_TASK", {
+        fromTasks,
+        toTasks,
+        taskIndex,
+      });
     },
   },
 };

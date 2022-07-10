@@ -26,15 +26,19 @@ export default new Vuex.Store({
     }
   },
   mutations: {
-    CREATE_TASK(state, { tasks, name }) {
+    CREATE_TASK(_state, { tasks, name }) {
       tasks.push({
         name,
         id: uuid(),
         description: ""
       });
     },
-    UPDATE_TASK(state, { task, key, value }) {
+    UPDATE_TASK(_state, { task, key, value }) {
       Vue.set(task, key, value);
+    },
+    MOVE_TASK(_state, { fromTasks, toTasks, taskIndex }) {
+      const taskToMove = fromTasks.splice(taskIndex, 1)[0];
+      toTasks.push(taskToMove);
     }
   }
 });
